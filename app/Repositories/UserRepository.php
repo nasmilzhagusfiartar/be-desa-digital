@@ -4,6 +4,9 @@ namespace App\Repositories;
 
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Exception;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -25,7 +28,7 @@ class UserRepository implements UserRepositoryInterface
         }
 
         if ($limit) {
-            $query->take($limit);
+            $query->limit($limit); // Lebih eksplisit daripada take()
         }
 
         return $execute ? $query->get() : $query;
@@ -38,12 +41,86 @@ class UserRepository implements UserRepositoryInterface
         ?string $search,
         ?int $rowsPerPage
     ) {
-        $query = $this->getAll(
-            $search,
-            $rowsPerPage,
-            false
-        );
+        $query = $this->getAll($search, $rowsPerPage, false);
 
         return $query->paginate($rowsPerPage ?? 10);
+    }
+
+    /**
+     * Ambil user berdasarkan ID.
+     */
+    public function getById(string $id)
+    {
+        return User::find($id);
+    }
+
+    /**
+     * Simpan user baru.
+     */
+    public function create(array $data)
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = new User();
+            $user->name = $data['name'];
+            $user->email = $data['email'];
+            $user->password = Hash::make($data['password']);
+
+            $user->save();
+
+            DB::commit();
+
+            return $user;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new Exception("Gagal menyimpan user: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Perbarui data user berdasarkan ID.
+     */
+    public function update(string $id, array $data)
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = User::findOrFail($id);
+            $user->name = $data['name'];
+
+            if (isset($data['password'])) {
+                $user->password = Hash::make($data['password']);
+            }
+
+            $user->save();
+
+            DB::commit();
+
+            return $user;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new Exception("Gagal memperbarui user: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Hapus user berdasarkan ID.
+     */
+    public function delete(string $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+
+            DB::commit();
+
+            return $user;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new Exception("Gagal menghapus user: " . $e->getMessage());
+        }
     }
 }

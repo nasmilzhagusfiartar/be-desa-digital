@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Traits\UUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -15,7 +14,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, UUID, SoftDeletes;
 
     /**
-     * The attributes that are mass assignable.
+     * Atribut yang bisa diisi secara massal.
      *
      * @var array<int, string>
      */
@@ -26,7 +25,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Atribut yang disembunyikan saat serialisasi.
      *
      * @var array<int, string>
      */
@@ -36,7 +35,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Atribut yang harus di-cast.
      *
      * @var array<string, string>
      */
@@ -45,22 +44,34 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    /**
+     * Scope pencarian user berdasarkan nama atau email.
+     */
     public function scopeSearch($query, $search)
     {
         return $query->where('name', 'like', '%' . $search . '%')
-            ->orWhere('email', 'like', '%' . $search . '%');
+                     ->orWhere('email', 'like', '%' . $search . '%');
     }
 
+    /**
+     * Relasi user dengan satu kepala keluarga.
+     */
     public function headOfFamily()
     {
         return $this->hasOne(HeadOfFamily::class);
     }
 
+    /**
+     * Relasi user dengan satu anggota keluarga.
+     */
     public function familyMember()
     {
         return $this->hasOne(FamilyMember::class);
     }
 
+    /**
+     * Relasi user dengan banyak pemohon pembangunan.
+     */
     public function developmentApplicants()
     {
         return $this->hasMany(DevelopmentApplicant::class);
