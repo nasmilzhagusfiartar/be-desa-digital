@@ -19,6 +19,11 @@ class EventParticipant extends Model
         'payment_status',
     ];
 
+    protected $casts = [
+        'quantity' => 'integer',
+        'total_price' => 'decimal:2',
+    ];
+
     public function scopeSearch($query, $search)
     {
         return $query->whereHas('headOfFamily', function ($query) use ($search) {
