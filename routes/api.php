@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DevelopmentApplicantController;
 use App\Http\Controllers\DevelopmentController;
 use App\Http\Controllers\EventController;
@@ -25,7 +26,8 @@ use App\Http\Controllers\UserController;
 */
 
 
-Route::apiResource('user', UserController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('user', UserController::class);
 Route::get('user/all/paginated', [UserController::class, 'getAllPaginated']);
 
 Route::apiResource('head-of-family', HeadOfFamilyController::class);
@@ -56,3 +58,9 @@ Route::get('development-applicant/all/paginated', [DevelopmentApplicantControlle
 Route::get('profile', [ProfileController::class, 'index']);
 Route::post('profile', [ProfileController::class, 'store']);
 Route::put('profile', [ProfileController::class, 'update']);
+});
+
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/register', action: [AuthController::class, 'register'])->name('register');
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me'])->name('me');

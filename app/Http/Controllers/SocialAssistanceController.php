@@ -9,8 +9,10 @@ use App\Http\Resources\PaginateResource;
 use App\Http\Resources\SocialAssistanceResource;
 use App\Interfaces\SocialAssistanceRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class SocialAssistanceController extends Controller
+class SocialAssistanceController extends Controller implements HasMiddleware
 {
     private SocialAssistanceRepositoryInterface $socialAssistanceRepository;
 
@@ -18,6 +20,25 @@ class SocialAssistanceController extends Controller
     {
         $this->socialAssistanceRepository = $socialAssistanceRepository;
     }
+
+    public static function middleware()
+{
+    return [
+        'index' => [PermissionMiddleware::using([
+            'social-assistance-list|social-assistance-create|social-assistance-edit|social-assistance-delete'
+        ])],
+        'getAllPaginated' => [PermissionMiddleware::using([
+            'social-assistance-list|social-assistance-create|social-assistance-edit|social-assistance-delete'
+        ])],
+        'show' => [PermissionMiddleware::using([
+            'social-assistance-list|social-assistance-create|social-assistance-edit|social-assistance-delete'
+        ])],
+        'store' => [PermissionMiddleware::using(['social-assistance-create'])],
+        'update' => [PermissionMiddleware::using(['social-assistance-edit'])],
+        'destroy' => [PermissionMiddleware::using(['social-assistance-delete'])],
+    ];
+}
+
 
     /**
      * Display a listing of the resource.

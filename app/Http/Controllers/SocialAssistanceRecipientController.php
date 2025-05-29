@@ -10,14 +10,35 @@ use App\Http\Resources\SocialAssistanceRecipientResource;
 use App\Interfaces\SocialAssistanceRecipientRepositoryInterface;
 use App\Repositories\SocialAssistanceRecipientRepository;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class SocialAssistanceRecipientController extends Controller
+class SocialAssistanceRecipientController extends Controller implements HasMiddleware
 {
     private SocialAssistanceRecipientRepositoryInterface $socialAssistanceRecipientRepository;
 
     public function __construct(SocialAssistanceRecipientRepositoryInterface $socialAssistanceRecipientRepository) {
         $this->socialAssistanceRecipientRepository = $socialAssistanceRecipientRepository;
     }
+
+    public static function middleware()
+{
+    return [
+        'index' => [PermissionMiddleware::using([
+            'social-assistance-recipient-list|social-assistance-recipient-create|social-assistance-recipient-edit|social-assistance-recipient-delete'
+        ])],
+        'getAllPaginated' => [PermissionMiddleware::using([
+            'social-assistance-recipient-list|social-assistance-recipient-create|social-assistance-recipient-edit|social-assistance-recipient-delete'
+        ])],
+        'show' => [PermissionMiddleware::using([
+            'social-assistance-recipient-list|social-assistance-recipient-create|social-assistance-recipient-edit|social-assistance-recipient-delete'
+        ])],
+        'store' => [PermissionMiddleware::using(['social-assistance-recipient-create'])],
+        'update' => [PermissionMiddleware::using(['social-assistance-recipient-edit'])],
+        'destroy' => [PermissionMiddleware::using(['social-assistance-recipient-delete'])],
+    ];
+}
+
     /**
      * Display a listing of the resource.
      */

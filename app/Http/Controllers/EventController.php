@@ -9,8 +9,10 @@ use App\Http\Resources\EventResource;
 use App\Http\Resources\PaginateResource;
 use App\Interfaces\EventRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class EventController extends Controller
+class EventController extends Controller implements HasMiddleware
 {
     private EventRepositoryInterface $eventRepository;
 
@@ -18,6 +20,24 @@ class EventController extends Controller
     {
         $this->eventRepository = $eventRepository;
     }
+
+    public static function middleware()
+{
+    return [
+        'index' => [PermissionMiddleware::using([
+            'event-list|event-create|event-edit|event-delete'
+        ])],
+        'getAllPaginated' => [PermissionMiddleware::using([
+            'event-list|event-create|event-edit|event-delete'
+        ])],
+        'show' => [PermissionMiddleware::using([
+            'event-list|event-create|event-edit|event-delete'
+        ])],
+        'store' => [PermissionMiddleware::using(['event-create'])],
+        'update' => [PermissionMiddleware::using(['event-edit'])],
+        'destroy' => [PermissionMiddleware::using(['event-delete'])],
+    ];
+}
 
     /**
      * Display a listing of the resource.

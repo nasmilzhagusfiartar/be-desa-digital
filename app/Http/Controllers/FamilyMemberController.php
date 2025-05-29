@@ -9,8 +9,11 @@ use App\Http\Resources\FamilyMemberResource;
 use App\Http\Resources\PaginateResource;
 use App\Interfaces\FamilyMemberRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class FamilyMemberController extends Controller
+class FamilyMemberController extends Controller implements HasMiddleware
 {
     private FamilyMemberRepositoryInterface $familyMemberRepository;
 
@@ -19,8 +22,20 @@ class FamilyMemberController extends Controller
         $this->familyMemberRepository = $familyMemberRepository;
     }
 
+    public static function middleware()
+{
+    return [
+        'index' => [PermissionMiddleware::using(['family-member-list|family-member-create|family-member-edit|family-member-delete'])],
+        'getAllPaginated' => [PermissionMiddleware::using(['family-member-list|family-member-create|family-member-edit|family-member-delete'])],
+        'show' => [PermissionMiddleware::using(['family-member-list|family-member-create|family-member-edit|family-member-delete'])],
+        'store' => [PermissionMiddleware::using(['family-member-create'])],
+        'update' => [PermissionMiddleware::using(['family-member-edit'])],
+        'destroy' => [PermissionMiddleware::using(['family-member-delete'])],
+    ];
+}
+
     /**
-     * Display a listing of the resource.
+     * Menampilkan semua data anggota keluarga (opsional search & limit).
      */
     public function index(Request $request)
     {
@@ -43,7 +58,7 @@ class FamilyMemberController extends Controller
     }
 
     /**
-     * Display paginated list of the resource.
+     * Menampilkan data anggota keluarga dengan pagination.
      */
     public function getAllPaginated(Request $request)
     {
@@ -71,24 +86,28 @@ class FamilyMemberController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data anggota keluarga baru.
      */
     public function store(FamilyMemberStoreRequest $request)
     {
         $request = $request->validated();
 
         try {
-        $familyMember = $this->familyMemberRepository->create($request);
+            $familyMember = $this->familyMemberRepository->create($request);
 
-            return ResponseHelper::jsonResponse(true, 'Data Anggota Keluarga Berhasil Ditambahkan', new FamilyMemberResource($familyMember), 200);
-            
+            return ResponseHelper::jsonResponse(
+                true,
+                'Data Anggota Keluarga Berhasil Ditambahkan',
+                new FamilyMemberResource($familyMember),
+                201
+            );
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail anggota keluarga berdasarkan ID.
      */
     public function show(string $id)
     {
@@ -96,16 +115,22 @@ class FamilyMemberController extends Controller
             $familyMember = $this->familyMemberRepository->getById($id);
 
             if (!$familyMember) {
-                return ResponseHelper::jsonResponse(false, 'Data Anggota Keluarga Tidak Ditemukan', null, statusCode: 404);
+                return ResponseHelper::jsonResponse(false, 'Data Anggota Keluarga Tidak Ditemukan', null, 404);
             }
-                return ResponseHelper::jsonResponse(true, 'Data Anggota Keluarga Berhasil Ditemukan', new FamilyMemberResource($familyMember), 200);
+
+            return ResponseHelper::jsonResponse(
+                true,
+                'Data Anggota Keluarga Berhasil Ditemukan',
+                new FamilyMemberResource($familyMember),
+                200
+            );
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
     }
 
     /**
-     * Update the specified resource in storage.
+     * Perbarui data anggota keluarga berdasarkan ID.
      */
     public function update(FamilyMemberUpdateRequest $request, string $id)
     {
@@ -115,20 +140,24 @@ class FamilyMemberController extends Controller
             $familyMember = $this->familyMemberRepository->getById($id);
 
             if (!$familyMember) {
-                return ResponseHelper::jsonResponse(false, 'Data Anggota Keluarga Tidak Ditemukan', null, statusCode: 404);
+                return ResponseHelper::jsonResponse(false, 'Data Anggota Keluarga Tidak Ditemukan', null, 404);
             }
 
             $familyMember = $this->familyMemberRepository->update($id, $request);
 
-            return ResponseHelper::jsonResponse(true, 'Data Anggota Keluarga Berhasil Diupdate', new FamilyMemberResource($familyMember), 200);
+            return ResponseHelper::jsonResponse(
+                true,
+                'Data Anggota Keluarga Berhasil Diupdate',
+                new FamilyMemberResource($familyMember),
+                200
+            );
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
-
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus data anggota keluarga berdasarkan ID.
      */
     public function destroy(string $id)
     {
@@ -136,13 +165,17 @@ class FamilyMemberController extends Controller
             $familyMember = $this->familyMemberRepository->getById($id);
 
             if (!$familyMember) {
-                return ResponseHelper::jsonResponse(false, 'Data Anggota Keluarga Tidak Ditemukan', null, statusCode: 404);
+                return ResponseHelper::jsonResponse(false, 'Data Anggota Keluarga Tidak Ditemukan', null, 404);
             }
 
             $this->familyMemberRepository->delete($id);
 
-            
-                return ResponseHelper::jsonResponse(true, 'Data Anggota Keluarga Berhasil Dihapus', null, 200);
+            return ResponseHelper::jsonResponse(
+                true,
+                'Data Anggota Keluarga Berhasil Dihapus',
+                null,
+                200
+            );
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }

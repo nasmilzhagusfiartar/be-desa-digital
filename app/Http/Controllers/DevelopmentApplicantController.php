@@ -9,8 +9,10 @@ use App\Http\Resources\DevelopmentApplicantResource;
 use App\Http\Resources\PaginateResource;
 use App\Interfaces\DevelopmentApplicantRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class DevelopmentApplicantController extends Controller
+class DevelopmentApplicantController extends Controller implements HasMiddleware
 {
 
     private DevelopmentApplicantRepositoryInterface $developmentApplicantRepository;
@@ -18,6 +20,24 @@ class DevelopmentApplicantController extends Controller
     public function __construct(DevelopmentApplicantRepositoryInterface $developmentApplicantRepository) {
         $this->developmentApplicantRepository = $developmentApplicantRepository;
     }
+
+    public static function middleware()
+{
+    return [
+        'index' => [PermissionMiddleware::using([
+            'development-applicant-list|development-applicant-create|development-applicant-edit|development-applicant-delete'
+        ])],
+        'getAllPaginated' => [PermissionMiddleware::using([
+            'development-applicant-list|development-applicant-create|development-applicant-edit|development-applicant-delete'
+        ])],
+        'show' => [PermissionMiddleware::using([
+            'development-applicant-list|development-applicant-create|development-applicant-edit|development-applicant-delete'
+        ])],
+        'store' => [PermissionMiddleware::using(['development-applicant-create'])],
+        'update' => [PermissionMiddleware::using(['development-applicant-edit'])],
+        'destroy' => [PermissionMiddleware::using(['development-applicant-delete'])],
+    ];
+}
     /**
      * Display a listing of the resource.
      */
