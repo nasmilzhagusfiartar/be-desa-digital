@@ -9,7 +9,7 @@ use App\Traits\UUID;
 
 class Development extends Model
 {
-    use SoftDeletes, UUID;
+    use HasFactory, SoftDeletes, UUID;
 
     protected $fillable = [
         'thumbnail',
@@ -21,6 +21,15 @@ class Development extends Model
         'amount',
         'status',
     ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+    ];
+
+    public function scopeSearch($query, $search){
+        return $query->where('name', 'like', '%' . $search . '%');
+                     
+    }
 
     public function developmentApplicants()
     {
