@@ -9,38 +9,28 @@ use App\Http\Resources\HeadOfFamilyResource;
 use App\Http\Resources\PaginateResource;
 use App\Interfaces\HeadOfFamilyRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use GuzzleHttp\Middleware;
-use Spatie\Permission\Middleware\PermissionMiddleware;
 
-
-class HeadOfFamilyController extends Controller implements HasMiddleware
+class HeadOfFamilyController extends Controller
 {
     private HeadOfFamilyRepositoryInterface $headOfFamilyRepository;
 
     public function __construct(HeadOfFamilyRepositoryInterface $headOfFamilyRepository)
     {
         $this->headOfFamilyRepository = $headOfFamilyRepository;
+
+        // Middleware permission
+        $this->middleware('permission:head-of-family-list|head-of-family-create|head-of-family-edit|head-of-family-delete')
+            ->only(['index', 'getAllPaginated', 'show']);
+
+        $this->middleware('permission:head-of-family-create')
+            ->only('store');
+
+        $this->middleware('permission:head-of-family-edit')
+            ->only('update');
+
+        $this->middleware('permission:head-of-family-delete')
+            ->only('destroy');
     }
-
-    public static function middleware()
-{
-    return [
-        'index' => [PermissionMiddleware::using([
-            'head-of-family-list|head-of-family-create|head-of-family-edit|head-of-family-delete'
-        ])],
-        'getAllPaginated' => [PermissionMiddleware::using([
-            'head-of-family-list|head-of-family-create|head-of-family-edit|head-of-family-delete'
-        ])],
-        'show' => [PermissionMiddleware::using([
-            'head-of-family-list|head-of-family-create|head-of-family-edit|head-of-family-delete'
-        ])],
-        'store' => [PermissionMiddleware::using(['head-of-family-create'])],
-        'update' => [PermissionMiddleware::using(['head-of-family-edit'])],
-        'destroy' => [PermissionMiddleware::using(['head-of-family-delete'])],
-    ];
-}
-
 
     /**
      * Menampilkan semua data kepala keluarga (opsional search & limit).
@@ -160,12 +150,12 @@ class HeadOfFamilyController extends Controller implements HasMiddleware
                 return ResponseHelper::jsonResponse(false, 'Kepala Keluarga tidak ditemukan', null, 404);
             }
 
-            $headOfFamily = $this->headOfFamilyRepository->update($id, $validated);
+            $updated = $this->headOfFamilyRepository->update($id, $validated);
 
             return ResponseHelper::jsonResponse(
                 true,
                 'Kepala Keluarga Berhasil Diupdate',
-                new HeadOfFamilyResource($headOfFamily),
+                new HeadOfFamilyResource($updated),
                 200
             );
         } catch (\Exception $e) {
