@@ -13,26 +13,19 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class FamilyMemberController extends Controller implements HasMiddleware
+class FamilyMemberController extends Controller
 {
     private FamilyMemberRepositoryInterface $familyMemberRepository;
 
-    public function __construct(FamilyMemberRepositoryInterface $familyMemberRepository)
+public function __construct(FamilyMemberRepositoryInterface $familyMemberRepository)
     {
         $this->familyMemberRepository = $familyMemberRepository;
-    }
 
-    public static function middleware()
-{
-    return [
-        'index' => [PermissionMiddleware::using(['family-member-list|family-member-create|family-member-edit|family-member-delete'])],
-        'getAllPaginated' => [PermissionMiddleware::using(['family-member-list|family-member-create|family-member-edit|family-member-delete'])],
-        'show' => [PermissionMiddleware::using(['family-member-list|family-member-create|family-member-edit|family-member-delete'])],
-        'store' => [PermissionMiddleware::using(['family-member-create'])],
-        'update' => [PermissionMiddleware::using(['family-member-edit'])],
-        'destroy' => [PermissionMiddleware::using(['family-member-delete'])],
-    ];
-}
+        $this->middleware('permission:family-member-list|family-member-create|family-member-edit|family-member-delete', ['only' => ['index', 'getAllPaginated', 'show']]);
+        $this->middleware('permission:family-member-create', ['only' => ['store']]);
+        $this->middleware('permission:family-member-edit', ['only' => ['update']]);
+        $this->middleware('permission:family-member-delete', ['only' => ['destroy']]);
+    }
 
     /**
      * Menampilkan semua data anggota keluarga (opsional search & limit).

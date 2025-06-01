@@ -12,32 +12,23 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class DevelopmentApplicantController extends Controller implements HasMiddleware
+class DevelopmentApplicantController extends Controller
 {
 
     private DevelopmentApplicantRepositoryInterface $developmentApplicantRepository;
 
     public function __construct(DevelopmentApplicantRepositoryInterface $developmentApplicantRepository) {
         $this->developmentApplicantRepository = $developmentApplicantRepository;
+
+        
+         
+        $this->middleware('permission:development-applicant-list|development-create|development-applicant-edit|development-applicant-delete', ['only' => ['index', 'getAllPaginated', 'show']]);
+        $this->middleware('permission:development-applicant-create', ['only' => ['store']]);
+        $this->middleware('permission:development-applicant-edit', ['only' => ['update']]);
+        $this->middleware('permission:development-applicant-delete', ['only' => ['destroy']]);
     }
 
-    public static function middleware()
-{
-    return [
-        'index' => [PermissionMiddleware::using([
-            'development-applicant-list|development-applicant-create|development-applicant-edit|development-applicant-delete'
-        ])],
-        'getAllPaginated' => [PermissionMiddleware::using([
-            'development-applicant-list|development-applicant-create|development-applicant-edit|development-applicant-delete'
-        ])],
-        'show' => [PermissionMiddleware::using([
-            'development-applicant-list|development-applicant-create|development-applicant-edit|development-applicant-delete'
-        ])],
-        'store' => [PermissionMiddleware::using(['development-applicant-create'])],
-        'update' => [PermissionMiddleware::using(['development-applicant-edit'])],
-        'destroy' => [PermissionMiddleware::using(['development-applicant-delete'])],
-    ];
-}
+ 
     /**
      * Display a listing of the resource.
      */

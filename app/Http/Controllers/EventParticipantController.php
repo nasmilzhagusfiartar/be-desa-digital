@@ -12,31 +12,20 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class EventParticipantController extends Controller implements HasMiddleware
+class EventParticipantController extends Controller
 {
     private EventParticipantRepositoryInterface $eventParticipantRepository;
 
     public function __construct(EventParticipantRepositoryInterface $eventParticipantRepository) {
         $this->eventParticipantRepository = $eventParticipantRepository;
+
+         
+        $this->middleware('permission:event-participant-list|event-participant-create|event-participant-edit|event-participant-delete', ['only' => ['index', 'getAllPaginated', 'show']]);
+        $this->middleware('permission:event-participant-create', ['only' => ['store']]);
+        $this->middleware('permission:event-participant-edit', ['only' => ['update']]);
+        $this->middleware('permission:event-participant-delete', ['only' => ['destroy']]);
     }
 
-    public static function middleware()
-{
-    return [
-        'index' => [PermissionMiddleware::using([
-            'event-participant-list|event-participant-create|event-participant-edit|event-participant-delete'
-        ])],
-        'getAllPaginated' => [PermissionMiddleware::using([
-            'event-participant-list|event-participant-create|event-participant-edit|event-participant-delete'
-        ])],
-        'show' => [PermissionMiddleware::using([
-            'event-participant-list|event-participant-create|event-participant-edit|event-participant-delete'
-        ])],
-        'store' => [PermissionMiddleware::using(['event-participant-create'])],
-        'update' => [PermissionMiddleware::using(['event-participant-edit'])],
-        'destroy' => [PermissionMiddleware::using(['event-participant-delete'])],
-    ];
-}
 
     /**
      * Display a listing of the resource.

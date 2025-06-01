@@ -12,33 +12,20 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class SocialAssistanceController extends Controller implements HasMiddleware
+class SocialAssistanceController extends Controller
 {
     private SocialAssistanceRepositoryInterface $socialAssistanceRepository;
 
     public function __construct(SocialAssistanceRepositoryInterface $socialAssistanceRepository)
     {
         $this->socialAssistanceRepository = $socialAssistanceRepository;
+
+        
+        $this->middleware('permission:social-assistance-list|social-assistance-create|social-assistance-edit|social-assistance-delete', ['only' => ['index', 'getAllPaginated', 'show']]);
+        $this->middleware('permission:social-assistance-create', ['only' => ['store']]);
+        $this->middleware('permission:social-assistance-edit', ['only' => ['update']]);
+        $this->middleware('permission:social-assistance-delete', ['only' => ['destroy']]);
     }
-
-    public static function middleware()
-{
-    return [
-        'index' => [PermissionMiddleware::using([
-            'social-assistance-list|social-assistance-create|social-assistance-edit|social-assistance-delete'
-        ])],
-        'getAllPaginated' => [PermissionMiddleware::using([
-            'social-assistance-list|social-assistance-create|social-assistance-edit|social-assistance-delete'
-        ])],
-        'show' => [PermissionMiddleware::using([
-            'social-assistance-list|social-assistance-create|social-assistance-edit|social-assistance-delete'
-        ])],
-        'store' => [PermissionMiddleware::using(['social-assistance-create'])],
-        'update' => [PermissionMiddleware::using(['social-assistance-edit'])],
-        'destroy' => [PermissionMiddleware::using(['social-assistance-delete'])],
-    ];
-}
-
 
     /**
      * Display a listing of the resource.

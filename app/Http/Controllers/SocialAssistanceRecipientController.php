@@ -13,31 +13,20 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class SocialAssistanceRecipientController extends Controller implements HasMiddleware
+class SocialAssistanceRecipientController extends Controller
 {
     private SocialAssistanceRecipientRepositoryInterface $socialAssistanceRecipientRepository;
 
     public function __construct(SocialAssistanceRecipientRepositoryInterface $socialAssistanceRecipientRepository) {
         $this->socialAssistanceRecipientRepository = $socialAssistanceRecipientRepository;
+
+        
+        $this->middleware('permission:social-assistance-recipient-list|social-assistance-recipient-create|social-assistance-recipient-edit|social-assistance-recipient-delete', ['only' => ['index', 'getAllPaginated', 'show']]);
+        $this->middleware('permission:social-assistance-recipient-create', ['only' => ['store']]);
+        $this->middleware('permission:social-assistance-recipient-edit', ['only' => ['update']]);
+        $this->middleware('permission:social-assistance-recipient-delete', ['only' => ['destroy']]);
     }
 
-    public static function middleware()
-{
-    return [
-        'index' => [PermissionMiddleware::using([
-            'social-assistance-recipient-list|social-assistance-recipient-create|social-assistance-recipient-edit|social-assistance-recipient-delete'
-        ])],
-        'getAllPaginated' => [PermissionMiddleware::using([
-            'social-assistance-recipient-list|social-assistance-recipient-create|social-assistance-recipient-edit|social-assistance-recipient-delete'
-        ])],
-        'show' => [PermissionMiddleware::using([
-            'social-assistance-recipient-list|social-assistance-recipient-create|social-assistance-recipient-edit|social-assistance-recipient-delete'
-        ])],
-        'store' => [PermissionMiddleware::using(['social-assistance-recipient-create'])],
-        'update' => [PermissionMiddleware::using(['social-assistance-recipient-edit'])],
-        'destroy' => [PermissionMiddleware::using(['social-assistance-recipient-delete'])],
-    ];
-}
 
     /**
      * Display a listing of the resource.

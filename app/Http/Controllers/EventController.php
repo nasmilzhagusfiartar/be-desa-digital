@@ -12,32 +12,22 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class EventController extends Controller implements HasMiddleware
+class EventController extends Controller
 {
     private EventRepositoryInterface $eventRepository;
 
     public function __construct(EventRepositoryInterface $eventRepository)
     {
         $this->eventRepository = $eventRepository;
+
+        
+        
+        $this->middleware('permission:event-list|event-create|event-edit|event-delete', ['only' => ['index', 'getAllPaginated', 'show']]);
+        $this->middleware('permission:event-create', ['only' => ['store']]);
+        $this->middleware('permission:event-edit', ['only' => ['update']]);
+        $this->middleware('permission:event-delete', ['only' => ['destroy']]);
     }
 
-    public static function middleware()
-{
-    return [
-        'index' => [PermissionMiddleware::using([
-            'event-list|event-create|event-edit|event-delete'
-        ])],
-        'getAllPaginated' => [PermissionMiddleware::using([
-            'event-list|event-create|event-edit|event-delete'
-        ])],
-        'show' => [PermissionMiddleware::using([
-            'event-list|event-create|event-edit|event-delete'
-        ])],
-        'store' => [PermissionMiddleware::using(['event-create'])],
-        'update' => [PermissionMiddleware::using(['event-edit'])],
-        'destroy' => [PermissionMiddleware::using(['event-delete'])],
-    ];
-}
 
     /**
      * Display a listing of the resource.

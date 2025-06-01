@@ -12,32 +12,22 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class DevelopmentController extends Controller implements HasMiddleware
+class DevelopmentController extends Controller
 {
 
     private DevelopmentRepositoryInterface $developmentRepository;
 
     public function __construct(DevelopmentRepositoryInterface $developmentRepository) {
         $this->developmentRepository = $developmentRepository;
+
+         
+        $this->middleware('permission:development-list|development-create|development-edit|development-delete', ['only' => ['index', 'getAllPaginated', 'show']]);
+        $this->middleware('permission:development-create', ['only' => ['store']]);
+        $this->middleware('permission:development-edit', ['only' => ['update']]);
+        $this->middleware('permission:development-delete', ['only' => ['destroy']]);
     }
 
-    public static function middleware()
-{
-    return [
-        'index' => [PermissionMiddleware::using([
-            'development-list|development-create|development-edit|development-delete'
-        ])],
-        'getAllPaginated' => [PermissionMiddleware::using([
-            'development-list|development-create|development-edit|development-delete'
-        ])],
-        'show' => [PermissionMiddleware::using([
-            'development-list|development-create|development-edit|development-delete'
-        ])],
-        'store' => [PermissionMiddleware::using(['development-create'])],
-        'update' => [PermissionMiddleware::using(['development-edit'])],
-        'destroy' => [PermissionMiddleware::using(['development-delete'])],
-    ];
-}
+    
     /**
      * Display a listing of the resource.
      */
