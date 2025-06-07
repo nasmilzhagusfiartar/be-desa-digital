@@ -33,7 +33,7 @@ class SocialAssistance extends Model
     }
     
 
-    public function socialAssistance()
+    public function socialAssistanceRecipients()
     {
         return $this->hasMany(SocialAssistanceRecipient::class);
     }

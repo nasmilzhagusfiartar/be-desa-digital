@@ -11,12 +11,14 @@ class SocialAssistanceRepository implements SocialAssistanceRepositoryInterface
 {
     public function getAll(?string $search, ?int $limit, bool $execute)
     {
-        $query = SocialAssistance::query();
-
-        if ($search) {
+        $query = SocialAssistance::where(function($query) use ($search) {
+            if ($search) {
             $query->search($search);
         }
 
+        })->with('socialAssistanceRecipients');
+
+        
         if ($limit) {
             $query->take($limit);
         }
