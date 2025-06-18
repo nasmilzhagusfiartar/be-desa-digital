@@ -54,6 +54,6 @@ class SocialAssistanceRecipient extends Model
      */
     public function headOfFamily()
     {
-        return $this->belongsTo(HeadOfFamily::class);
+        return $this->belongsTo(HeadOfFamily::class)->withTrashed();
     }
 }

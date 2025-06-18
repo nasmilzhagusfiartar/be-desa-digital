@@ -32,11 +32,12 @@ class SocialAssistanceRepository implements SocialAssistanceRepositoryInterface
         return $query->paginate($rowPerPage);
     }
 
-    public function getById(string $id)
-    {
-        return SocialAssistance::where('id', $id)->first(); // ✅ benar
-        // Atau bisa juga: return SocialAssistance::find($id);
-    }
+public function getById(string $id)
+{
+    return SocialAssistance::with('socialAssistanceRecipients')
+        ->where('id', $id)
+        ->first();
+}
 
     public function create(array $data)
     {
